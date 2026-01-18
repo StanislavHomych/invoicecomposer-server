@@ -1,0 +1,232 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  // Optional: Direct connection for migrations (falls back to DATABASE_URL if not set)
+  // directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  company  Company?
+  clients  Client[]
+  invoices Invoice[]
+}
+
+model Company {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  addressLine1 String?
+  addressLine2 String?
+  city         String?
+  state        String?
+  postalCode   String?
+  country      String?  @default("US")
+  email       String?
+  phone       String?
+  logoUrl     String?
+  bankDetails String?
+  taxIdLabel  String?
+  taxIdValue  String?
+  timeZone    String?   @default("America/New_York")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  invoices Invoice[]
+}
+
+model Client {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  email     String?
+  addressLine1 String?
+  addressLine2 String?
+  city         String?
+  state        String?
+  postalCode   String?
+  country      String? @default("US")
+  taxIdLabel   String?
+  taxIdValue   String?
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  invoices Invoice[]
+
+  @@index([userId])
+}
+
+model Invoice {
+  id                   String               @id @default(cuid())
+  userId               String
+  user                 User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  companyId            String
+  company              Company              @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  clientId             String
+  client               Client               @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  invoiceNumber        String               @unique
+  issueDate            DateTime
+  dueDate              DateTime
+  paymentTerms         PaymentTerms         @default(NET_30)
+  paymentTermsCustomDays Int?
+  status               InvoiceStatus        @default(DRAFT)
+  currency             String               @default("USD")
+  poNumber             String?
+  notes                String?
+  memo                 String?
+  termsConditions      String?
+  lateFeePercent       Float?
+  lateFeeFixed         Float?
+  shippingAmount       Float                @default(0)
+  taxMode              TaxMode              @default(NONE)
+  taxScope             TaxScope             @default(LINE_ITEM)
+  invoiceTaxPercent    Float                @default(0)
+  template             InvoiceTemplate      @default(CLASSIC)
+  achRouting           String?
+  achAccount           String?
+  wireIban             String?
+  wireSwift            String?
+  paymentLink          String?
+  checkPayableTo       String?
+  subtotal             Float                @default(0)
+  discountTotal        Float                @default(0)
+  taxTotal             Float                @default(0)
+  total                Float                @default(0)
+  paidAmount           Float                @default(0)
+  dueAmount            Float                @default(0)
+  latestPdfUrl         String?
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+
+  items       InvoiceItem[]
+  pdfs        InvoicePdf[]
+  payments    InvoicePayment[]
+  activities  InvoiceActivity[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([currency])
+  @@index([invoiceNumber])
+}
+
+model InvoiceItem {
+  id              String   @id @default(cuid())
+  invoiceId       String
+  invoice         Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  title           String
+  description     String?
+  quantity        Float
+  unitPrice       Float
+  taxPercent      Float    @default(0)
+  discountPercent Float    @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([invoiceId])
+}
+
+model InvoiceSequence {
+  year       Int    @id
+  lastNumber Int    @default(0)
+}
+
+model InvoicePdf {
+  id        String   @id @default(cuid())
+  invoiceId String
+  invoice   Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  version   Int
+  pdfUrl    String
+  createdAt DateTime @default(now())
+
+  @@unique([invoiceId, version])
+}
+
+model InvoiceActivity {
+  id        String               @id @default(cuid())
+  invoiceId String
+  invoice   Invoice              @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  userId    String
+  action    InvoiceActivityAction
+  meta      Json?
+  createdAt DateTime             @default(now())
+
+  @@index([invoiceId])
+  @@index([userId])
+}
+
+model InvoicePayment {
+  id        String         @id @default(cuid())
+  invoiceId String
+  invoice   Invoice        @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  amount    Float
+  date      DateTime
+  method    PaymentMethod
+  note      String?
+  createdAt DateTime       @default(now())
+
+  @@index([invoiceId])
+}
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PAID
+  OVERDUE
+  CANCELED
+}
+
+enum PaymentTerms {
+  NET_15
+  NET_30
+  NET_45
+  NET_60
+  CUSTOM
+}
+
+enum TaxMode {
+  NONE
+  SALES_TAX
+  VAT
+}
+
+enum TaxScope {
+  LINE_ITEM
+  INVOICE
+}
+
+enum InvoiceTemplate {
+  CLASSIC
+  MINIMAL
+}
+
+enum PaymentMethod {
+  ACH
+  WIRE
+  CARD
+  CHECK
+  CASH
+  OTHER
+}
+
+enum InvoiceActivityAction {
+  CREATE
+  UPDATE
+  STATUS_CHANGE
+  PDF_GENERATED
+  PAYMENT_RECORDED
+}

@@ -14,11 +14,13 @@ const app = express();
 
 // Get allowed origins for CORS
 const getAllowedOrigins = () => {
+  // If CORS_ORIGIN is explicitly set, use it (for separate client/server deployments)
   if (process.env.CORS_ORIGIN) {
-    return process.env.CORS_ORIGIN.split(',').map(origin => origin.trim());
+    const origins = process.env.CORS_ORIGIN.split(',').map(origin => origin.trim());
+    return origins;
   }
   
-  // In Vercel, use the deployment URL
+  // In Vercel, use the deployment URL (for same-domain deployment)
   if (process.env.VERCEL_URL) {
     return [`https://${process.env.VERCEL_URL}`];
   }

@@ -1,0 +1,33 @@
+{
+  "version": 2,
+  "buildCommand": "npm install && npm run build",
+  "installCommand": "npm install",
+  "framework": null,
+  "functions": {
+    "api/index.ts": {
+      "runtime": "nodejs18.x"
+    }
+  },
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/index.ts"
+    },
+    {
+      "src": "/uploads/(.*)",
+      "dest": "/api/index.ts"
+    },
+    {
+      "src": "/sitemap.xml",
+      "dest": "/api/index.ts"
+    },
+    {
+      "src": "/rss.xml",
+      "dest": "/api/index.ts"
+    },
+    {
+      "src": "/health",
+      "dest": "/api/index.ts"
+    }
+  ]
+}

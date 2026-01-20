@@ -4,7 +4,7 @@
 
 ### 1. DATABASE_URL (обов'язково!)
 ```env
-DATABASE_URL="postgresql://neondb_owner:npg_KhH1SYOjhsw2@ep-weathered-art-ahnvcrw2-pooler.c-4.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+DATABASE_URL="postgresql://user:password@host:port/database?sslmode=require"
 ```
 
 ### 2. JWT_SECRET (обов'язково для безпеки!)
@@ -55,7 +55,7 @@ STORAGE_PATH="./uploads"                # Шлях для локального �
 
 ```env
 # Обов'язкові
-DATABASE_URL="postgresql://neondb_owner:npg_KhH1SYOjhsw2@ep-weathered-art-ahnvcrw2-pooler.c-4.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+DATABASE_URL="postgresql://user:password@host:port/database?sslmode=require"
 JWT_SECRET="your-super-secret-jwt-key-change-this-in-production"
 JWT_REFRESH_SECRET="your-super-secret-refresh-key-change-this-in-production"
 ```
@@ -85,7 +85,7 @@ openssl rand -base64 32
 
 ```env
 # Database - Neon Serverless Postgres
-DATABASE_URL="postgresql://neondb_owner:npg_KhH1SYOjhsw2@ep-weathered-art-ahnvcrw2-pooler.c-4.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+DATABASE_URL="postgresql://user:password@host:port/database?sslmode=require"
 
 # JWT (ОБОВ'ЯЗКОВО змінити в production!)
 JWT_SECRET="invoice-builder-jwt-secret-min-32-chars-long-random-string"

@@ -12,7 +12,7 @@ npm install
 
 ### Налаштування бази даних
 
-1. Створіть `.env` файл:
+1. Створіть `.env` файл (скопіюйте з `.env.example`):
 
 ```
 DATABASE_URL=postgresql://user:password@host:port/database?sslmode=require
@@ -55,7 +55,7 @@ npm start
 
 ## 📦 Деплой на Vercel
 
-Детальні інструкції дивіться в [DEPLOYMENT_STEPS.md](../DEPLOYMENT_STEPS.md) або [SERVER_DEPLOY.md](../SERVER_DEPLOY.md)
+Детальні інструкції дивіться в [DEPLOY.md](./DEPLOY.md)
 
 ### Швидкий деплой
 
@@ -66,6 +66,8 @@ npm start
 5. Deploy!
 
 ## 🔧 Environment Variables
+
+Дивіться також [ENV_VARIABLES.md](./ENV_VARIABLES.md) і `.env.example`.
 
 ### Обов'язкові
 

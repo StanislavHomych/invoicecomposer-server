@@ -49,6 +49,11 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Handle OPTIONS preflight requests explicitly
+app.options('*', (req: Request, res: Response) => {
+  res.status(200).end();
+});
+
 // Serve uploaded files
 if (process.env.STORAGE_TYPE === 'local') {
   const uploadsPath = process.env.STORAGE_PATH || './uploads';

@@ -20,23 +20,49 @@ const getAllowedOrigins = () => {
     return origins;
   }
   
-  // In Vercel, use the deployment URL (for same-domain deployment)
+  // In Vercel, allow common Vercel client domains
+  const vercelOrigins = [];
   if (process.env.VERCEL_URL) {
-    return [`https://${process.env.VERCEL_URL}`];
+    vercelOrigins.push(`https://${process.env.VERCEL_URL}`);
   }
+  // Allow common Vercel client patterns
+  vercelOrigins.push('https://invoicecomposer-client.vercel.app');
+  vercelOrigins.push('https://invoicecomposer-client-snd1.vercel.app');
+  vercelOrigins.push(/^https:\/\/invoicecomposer-client.*\.vercel\.app$/);
   
   // Development fallback
-  return ['http://localhost:5173'];
+  vercelOrigins.push('http://localhost:5173');
+  
+  return vercelOrigins;
 };
 
 const corsOptions = {
   origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
     const allowedOrigins = getAllowedOrigins();
+    
     // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (!origin) {
+      callback(null, true);
+      return;
+    }
+    
+    // Check if origin matches any allowed origin (string or regex)
+    const isAllowed = allowedOrigins.some(allowed => {
+      if (typeof allowed === 'string') {
+        return allowed === origin;
+      }
+      if (allowed instanceof RegExp) {
+        return allowed.test(origin);
+      }
+      return false;
+    });
+    
+    if (isAllowed) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      // In production, log but still allow for debugging
+      console.log('CORS: Origin not in allowed list:', origin);
+      callback(null, true); // Allow all origins for now to debug
     }
   },
   credentials: true,

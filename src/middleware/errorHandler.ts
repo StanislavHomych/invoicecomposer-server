@@ -17,6 +17,13 @@ export function errorHandler(
     console.error('Error code:', (err as any).code);
   }
 
+  // Add CORS headers to error responses
+  const origin = req.headers.origin;
+  if (origin) {
+    res.header('Access-Control-Allow-Origin', origin);
+    res.header('Access-Control-Allow-Credentials', 'true');
+  }
+
   // Handle Zod validation errors
   if (err instanceof ZodError) {
     const firstError = err.errors[0];

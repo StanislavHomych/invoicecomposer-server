@@ -44,15 +44,20 @@ const corsOptions = {
   allowedHeaders: ['Content-Type', 'Authorization'],
 };
 
+// Handle OPTIONS preflight requests FIRST - before CORS middleware
+// This prevents redirects which are not allowed for preflight requests
+app.options('*', (req: Request, res: Response) => {
+  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.status(200).end();
+});
+
 app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// Handle OPTIONS preflight requests explicitly
-app.options('*', (req: Request, res: Response) => {
-  res.status(200).end();
-});
 
 // Serve uploaded files
 if (process.env.STORAGE_TYPE === 'local') {
